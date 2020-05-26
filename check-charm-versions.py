@@ -16,7 +16,7 @@ MASTER_URL= 'https://api.jujucharms.com/charmstore/v5/~juniper-os-software/{}/ar
 
 def cli_grab():
     """take stuff from cli, output it in a dict"""
-    parser = argparse.ArgumentParser(description='compare charm commit hashes')
+    parser = argparse.ArgumentParser(description='compare charm commit hashes. Arguments = all the versions to check')
     parser.add_argument("agent", help="contrail-agent charm version")
     parser.add_argument("analytics", help="contrail-analytics charm version")
     parser.add_argument("analyticsdb", help="contrail-analyticsdb charm version")

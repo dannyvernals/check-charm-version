@@ -19,3 +19,11 @@ positional arguments:
 optional arguments:
   -h, --help   show this help message and exit
 ```
+
+For example:
+```
+python check-charm-versions.py contrail-agent-18 contrail-analytics-16 contrail-analyticsdb-16 \
+                               contrail-controller-17 contrail-keystone-auth-16 contrail-openstack-19
+Or
+python check-charm-versions.py `juju export-bundle | grep juniper-os-software |awk -F \/ '{print $2}' | xargs`
+```

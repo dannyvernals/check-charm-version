@@ -11,6 +11,7 @@ python check-charm-versions.py `juju export-bundle | grep juniper-os-software |a
 import requests
 import re
 import argparse
+import itertools
 
 MASTER_URL= 'https://api.jujucharms.com/charmstore/v5/~juniper-os-software/{}/archive/repo-info'
 
@@ -35,7 +36,7 @@ def get_hashes(args):
         if sha_text:
             sha_text = sha_text.group(1)
         else:
-            sha_text = "."
+            sha_text = "Not Found"
         charms.append((charm, version, sha_text))
     return charms
 
@@ -47,8 +48,12 @@ def compare_hashes(hashes):
     else:
         print("\nWARNING: Hashes are NOT equal\n")
         hashes = sorted(hashes, key=lambda x: x[2])
-        for line in hashes:
-            print(line)
+        n = 1
+        for __, grouped_hashes in itertools.groupby(hashes, key=lambda x: x[2]):
+            print("hash group {}:".format(n))
+            for line in grouped_hashes:
+                print(line)
+            n += 1
 
 
 if __name__ == '__main__':

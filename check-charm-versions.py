@@ -46,11 +46,12 @@ def compare_hashes(hashes):
         print("\nHashes are equal, charms were committed at the same time, we can assume they are compatible\n")
     else:
         print("\nWARNING: Hashes are NOT equal\n")
+        hashes = sorted(hashes, key=lambda x: x[2])
         for line in hashes:
             print(line)
 
 
 if __name__ == '__main__':
     args = cli_grab()
-    hashes = get_hashes(args)
-    compare_hashes(hashes)
+    hash_out = get_hashes(args)
+    compare_hashes(hash_out)

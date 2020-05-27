@@ -66,10 +66,12 @@ def iterate_hashes(hashes):
             print(line)
         n += 1
 
+
 def compare_hashes(hashes):
     hash_set = set([line[2] for line in hashes])
     if len(hash_set) == 1:
-        print("\nHashes are equal, charms are from the same commit, so we can assume compatibility. Commit details:\n")
+        print("\nHashes are equal, charms versions are from the same commit, so we can assume compatibility.\n"
+              "Commit details:")
         try:
             commit_message = "===\n" + find_commit(hash_set.pop())['items'][0]['commit']['message'] + "\n==="
         except IndexError:
@@ -78,7 +80,6 @@ def compare_hashes(hashes):
     else:
         print("\nWARNING: Not all hashes are equal\n")
         iterate_hashes(hashes)
-
 
 
 if __name__ == '__main__':

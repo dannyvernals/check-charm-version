@@ -14,6 +14,11 @@ import argparse
 import itertools
 
 MASTER_URL= 'https://api.jujucharms.com/charmstore/v5/~juniper-os-software/{}/archive/repo-info'
+# Example web commit search query:
+# https://github.com/tungstenfabric/tf-charms/search?q=hash%3Acc1474f70b5bbfb6abeab009b4acab704f525bf2&type=commits
+# example API search query:
+# curl -H "Accept: application/vnd.github.cloak-preview" \
+# https://api.github.com/search/commits?q=repo:tungstenfabric/tf-charms+cc1474f70b5bbfb6abeab009b4acab704f525bf2
 
 def cli_grab():
     """take stuff from cli, output it in a dict"""
@@ -41,22 +46,42 @@ def get_hashes(args):
     return charms
 
 
+def find_commit(hash):
+    github_query_url = "https://api.github.com/search/commits?q=repo:tungstenfabric/tf-charms+" + hash
+    commit_details = requests.get(github_query_url,
+                                  headers={'Accept': 'application/vnd.github.cloak-preview'})
+    return commit_details.json()
+
+
+def iterate_hashes(hashes):
+    hashes = sorted(hashes, key=lambda x: x[2])
+    n = 1
+    for hash, grouped_hashes in itertools.groupby(hashes, key=lambda x: x[2]):
+        try:
+            commit_message = "\n" + find_commit(hash)['items'][0]['commit']['message']
+        except IndexError:
+            commit_message = "'Commit not found'"
+        print("\nGroup {}: commit details: \n===\n{}\n===".format(n, commit_message))
+        for line in grouped_hashes:
+            print(line)
+        n += 1
+
 def compare_hashes(hashes):
     hash_set = set([line[2] for line in hashes])
     if len(hash_set) == 1:
-        print("\nHashes are equal, charms were committed at the same time, we can assume they are compatible\n")
+        print("\nHashes are equal, charms are from the same commit, so we can assume compatibility. Commit details:\n")
+        try:
+            commit_message = "===\n" + find_commit(hash_set.pop())['items'][0]['commit']['message'] + "\n==="
+        except IndexError:
+            commit_message = "'Commit not found'"
+        print(commit_message)
     else:
-        print("\nWARNING: Hashes are NOT equal\n")
-        hashes = sorted(hashes, key=lambda x: x[2])
-        n = 1
-        for __, grouped_hashes in itertools.groupby(hashes, key=lambda x: x[2]):
-            print("hash group {}:".format(n))
-            for line in grouped_hashes:
-                print(line)
-            n += 1
+        print("\nWARNING: Not all hashes are equal\n")
+        iterate_hashes(hashes)
+
 
 
 if __name__ == '__main__':
-    args = cli_grab()
-    hash_out = get_hashes(args)
+    arguments = cli_grab()
+    hash_out = get_hashes(arguments)
     compare_hashes(hash_out)

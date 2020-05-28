@@ -14,7 +14,7 @@ import argparse
 import itertools
 import requests
 
-CHARMS_URL = 'https://api.jujucharms.com/charmstore/v5/~juniper-os-software/{}/archive/repo-info'
+CHARMS_URL = "https://api.jujucharms.com/charmstore/v5/~juniper-os-software/{}/archive/repo-info"
 GITHUB_URL = "https://api.github.com/search/commits?q=repo:tungstenfabric/tf-charms+"
 
 # Example web commit search query:
@@ -25,8 +25,8 @@ GITHUB_URL = "https://api.github.com/search/commits?q=repo:tungstenfabric/tf-cha
 
 def cli_grab():
     """take stuff from cli, output it in a dict"""
-    parser = argparse.ArgumentParser(description='compare charm commit hashes. '
-                                                 'Arguments = all the versions to check')
+    parser = argparse.ArgumentParser(description="compare charm commit hashes. "
+                                                 "Arguments = all the versions to check")
     parser.add_argument("agent", help="contrail-agent charm version")
     parser.add_argument("analytics", help="contrail-analytics charm version")
     parser.add_argument("analyticsdb", help="contrail-analyticsdb charm version")
@@ -56,11 +56,10 @@ def find_commit(commit_hash):
     if commit_hash != "Not Found":
         github_query_url = GITHUB_URL + commit_hash
         commit_details = requests.get(github_query_url,
-                                      headers={'Accept': 'application/vnd.github.cloak-preview'})
+                                      headers={"Accept": "application/vnd.github.cloak-preview"})
         return commit_details.json()
     else:
         return {}
-
 
 
 def iterate_hashes(hashes):
@@ -69,7 +68,7 @@ def iterate_hashes(hashes):
     num = 1
     for commit_hash, grouped_hashes in itertools.groupby(hashes, key=lambda x: x[2]):
         try:
-            commit_message = "\n" + find_commit(commit_hash)['items'][0]['commit']['message']
+            commit_message = "\n" + find_commit(commit_hash)["items"][0]["commit"]["message"]
         except (IndexError, KeyError):
             commit_message = "'Commit not found'"
         print('-' * 80)
@@ -87,7 +86,7 @@ def compare_hashes(hashes):
               "so we can assume compatibility.\nCommit details:")
         try:
             commit_message = "===\n"
-            commit_message += find_commit(hash_set.pop())['items'][0]['commit']['message']
+            commit_message += find_commit(hash_set.pop())["items"][0]["commit"]["message"]
             commit_message += "\n==="
         except (IndexError, KeyError):
             commit_message = "'Commit not found'"
@@ -97,7 +96,7 @@ def compare_hashes(hashes):
         iterate_hashes(hashes)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ARGS = cli_grab()
     COMMIT_HASHES = get_hashes(ARGS)
     compare_hashes(COMMIT_HASHES)

@@ -1,5 +1,8 @@
 # check-charm-version
-Compare the commit hashes of Contrail charm versions to infer compatibility based on whether or not they were committed at the same time
+Compare the commit hashes of Contrail charm versions to infer compatibility. 
+The script queries the juju charm store for Contrail component charms.  
+It captures the referenced git commit hash for each commponent and compares them.
+It then queries Github for metadata about the relevant commit.
 
 ```
 usage: check-charm-versions.py [-h]

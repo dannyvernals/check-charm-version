@@ -53,10 +53,14 @@ def get_hashes(args):
 
 def find_commit(commit_hash):
     """query github to search for metadata about the specified commit"""
-    github_query_url = GITHUB_URL + commit_hash
-    commit_details = requests.get(github_query_url,
-                                  headers={'Accept': 'application/vnd.github.cloak-preview'})
-    return commit_details.json()
+    if commit_hash != "Not Found":
+        github_query_url = GITHUB_URL + commit_hash
+        commit_details = requests.get(github_query_url,
+                                      headers={'Accept': 'application/vnd.github.cloak-preview'})
+        return commit_details.json()
+    else:
+        return {}
+
 
 
 def iterate_hashes(hashes):
@@ -66,7 +70,7 @@ def iterate_hashes(hashes):
     for commit_hash, grouped_hashes in itertools.groupby(hashes, key=lambda x: x[2]):
         try:
             commit_message = "\n" + find_commit(commit_hash)['items'][0]['commit']['message']
-        except IndexError:
+        except (IndexError, KeyError):
             commit_message = "'Commit not found'"
         print('-' * 80)
         print("\nGroup {}: commit details: \n===\n{}\n===".format(num, commit_message))

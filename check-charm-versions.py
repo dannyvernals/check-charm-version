@@ -62,17 +62,27 @@ def find_commit(commit_hash):
         return {}
 
 
+def parse_commit(commit_hash):
+    """extract data from the json blob we grab from github"""
+    try:
+        commit_data = find_commit(commit_hash)
+        commit_date = commit_data["items"][0]["commit"]["committer"]["date"]
+        commit_message = commit_data["items"][0]["commit"]["message"]
+    except (IndexError, KeyError):
+        commit_message = "'Commit not found'"
+        commit_date = "'Not Known'"
+    return commit_date, commit_message
+
+
 def iterate_hashes(hashes):
     """For a list of non-equal hashes, sort and group them and output metadata"""
     hashes = sorted(hashes, key=lambda x: x[2])
     num = 1
     for commit_hash, grouped_hashes in itertools.groupby(hashes, key=lambda x: x[2]):
-        try:
-            commit_message = "\n" + find_commit(commit_hash)["items"][0]["commit"]["message"]
-        except (IndexError, KeyError):
-            commit_message = "'Commit not found'"
+        commit_date, commit_message = parse_commit(commit_hash)
         print('-' * 80)
-        print("\nGroup {}: commit details: \n===\n{}\n===".format(num, commit_message))
+        print("\nGroup {}: commit-date: {}".format(num, commit_date))
+        print("commit details: \n===\n{}\n===".format(commit_message))
         for line in grouped_hashes:
             print(line)
         num += 1
@@ -83,14 +93,10 @@ def compare_hashes(hashes):
     hash_set = set([line[2] for line in hashes])
     if len(hash_set) == 1:
         print("\nHashes are equal, charms versions are from the same commit "
-              "so we can assume compatibility.\nCommit details:")
-        try:
-            commit_message = "===\n"
-            commit_message += find_commit(hash_set.pop())["items"][0]["commit"]["message"]
-            commit_message += "\n==="
-        except (IndexError, KeyError):
-            commit_message = "'Commit not found'"
-        print(commit_message)
+              "so we can assume compatibility.\n")
+        commit_date, commit_message = parse_commit(hash_set.pop())
+        print("commit-date: {}".format(commit_date))
+        print("commit details: \n===\n{}\n===".format(commit_message))
     else:
         print("\nWARNING: Not all hashes are equal\n")
         iterate_hashes(hashes)

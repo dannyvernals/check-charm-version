@@ -89,7 +89,7 @@ def compare_hashes(hashes):
             commit_message = "===\n"
             commit_message += find_commit(hash_set.pop())['items'][0]['commit']['message']
             commit_message += "\n==="
-        except IndexError:
+        except (IndexError, KeyError):
             commit_message = "'Commit not found'"
         print(commit_message)
     else:

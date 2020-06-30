@@ -56,11 +56,11 @@ optional arguments:
 
 For example:
 ```
-ython diff_charm_versions.py contrail-agent-22 contrail-agent-21
+danny@ubuntu:python diff_charm_versions.py contrail-agent-22 contrail-agent-21
+Outputing difference between:
+395491c2a0efb1a60fca9c6629ee410e233b15de & 44a88096178ef7525a9e274673ffb206619d3f45
 
-Outputing difference between commit: 395491c2a0efb1a60fca9c6629ee410e233b15de and commit: 44a88096178ef7525a9e274673ffb206619d3f45
-
-Only showing diffs of files relating to the component: contrail-agent
+Only showing diffs of files relating to the component: 'contrail-agent'
 ================================================================================
 diff of 'contrail-agent/hooks/common_utils.py':
 @@ -143,8 +143,8 @@ def update_services_status(module, services):
@@ -85,4 +85,5 @@ diff of 'contrail-agent/templates/vrouter.env':
  SRIOV_PHYSICAL_INTERFACE={{ sriov_physical_interface.split(',')[0] }}
  SRIOV_VF={{ sriov_numvfs.split(',')[0] }}
  {%- else %}
+
 ```

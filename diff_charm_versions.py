@@ -31,8 +31,8 @@ def main():
     commit_hashes = check_charm_versions.get_hashes(args)
     hash_1, hash_2 = [i[1] for i in commit_hashes]
     diff_json = check_charm_versions.get_diff(hash_1, hash_2)
-    print("\nOutputing difference between commit: {} and commit: {}\n".format(hash_1, hash_2))
-    print("Only showing diffs of files relating to the component: {}".format(component))
+    print("\nOutputing difference between:\n{} & {}\n".format(hash_1, hash_2))
+    print("Only showing diffs of files relating to the component: '{}'".format(component))
     for file in diff_json['files']:
         if component in file['contents_url']:
             print('=' * 80)

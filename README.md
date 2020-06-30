@@ -55,4 +55,34 @@ optional arguments:
 ```
 
 For example:
+```
+ython diff_charm_versions.py contrail-agent-22 contrail-agent-21
 
+Outputing difference between commit: 395491c2a0efb1a60fca9c6629ee410e233b15de and commit: 44a88096178ef7525a9e274673ffb206619d3f45
+
+Only showing diffs of files relating to the component: contrail-agent
+================================================================================
+diff of 'contrail-agent/hooks/common_utils.py':
+@@ -143,8 +143,8 @@ def update_services_status(module, services):
+     status_set("active", "Unit is ready")
+     try:
+         tag = config.get('image-tag')
+-        docker_utils.pull("contrail-base", tag)
+-        version = docker_utils.get_contrail_version("contrail-base", tag)
++        docker_utils.pull("contrail-node-init", tag)
++        version = docker_utils.get_contrail_version("contrail-node-init", tag)
+         application_version_set(version)
+     except CalledProcessError as e:
+         log("Couldn't detect installed application version: " + str(e))
+================================================================================
+diff of 'contrail-agent/templates/vrouter.env':
+@@ -68,7 +68,7 @@ VROUTER_ENCRYPTION=FALSE
+ VROUTER_HOSTNAME={{ hostname }}
+ 
+ {%- if sriov_physical_interface and sriov_numvfs %}
+-{%- if contrail_version|int < 2008 %}
++{%- if contrail_version < 2008 %}
+ SRIOV_PHYSICAL_INTERFACE={{ sriov_physical_interface.split(',')[0] }}
+ SRIOV_VF={{ sriov_numvfs.split(',')[0] }}
+ {%- else %}
+```

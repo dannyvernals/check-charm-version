@@ -2,11 +2,7 @@
 Find the github commit hashes of Contrail components in the juju charms store.
 Diff these commits and output the code differences between them. 
 """
-import re
 import argparse
-import itertools
-import json
-import requests
 import check_charm_versions
 
 

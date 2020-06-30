@@ -26,18 +26,8 @@ def cli_grab():
 
 def main():
     args = cli_grab().values()
-    args.sort()
-    component = '-'.join(args[0].split('-')[0:2])
-    commit_hashes = check_charm_versions.get_hashes(args)
-    hash_1, hash_2 = [i[1] for i in commit_hashes]
-    diff_json = check_charm_versions.get_diff(hash_1, hash_2)
-    print("\nOutputing difference between:\n{} & {}\n".format(hash_1, hash_2))
-    print("Only showing diffs of files relating to the component: '{}'".format(component))
-    for file in diff_json['files']:
-        if component in file['contents_url']:
-            print('=' * 80)
-            print("diff of '{}':".format(file['filename']))
-            print(file['patch'])
+    hash_1, hash_2, component = check_charm_versions.process_versions(args)
+    check_charm_versions.output_diff(hash_1, hash_2, component)
 
 
 if __name__ == "__main__":

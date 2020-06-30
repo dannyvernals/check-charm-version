@@ -12,6 +12,7 @@ check-charm-versions.py `juju export-bundle | grep juniper-os- |awk -F \/ '{prin
 import re
 import argparse
 import itertools
+import json 
 import requests
 
 
@@ -35,6 +36,7 @@ def cli_grab():
     parser.add_argument("controller", help="contrail-controller charm version")
     parser.add_argument("keystone", help="contrail-keystone-auth charm version")
     parser.add_argument("openstack", help="contrail-openstack charm version")
+    parser.add_argument("-d", "--diff", action="store_true", help="show code differences between commits")
     args = vars(parser.parse_args())
     return args
 
@@ -65,11 +67,28 @@ def find_commit(commit_hash):
 
 
 def get_diff(com_hash_1, com_hash_2):
-    """query github to search for metadata about the specified commit"""
+    """query github to search for data about the differences between commits"""
     github_query_url = GITHUB_DIFF_URL.format(com_hash_1, com_hash_2)
     diff_details = requests.get(github_query_url,
                                       headers={"Accept": "application/vnd.github.cloak-preview"})
     return diff_details.json()
+
+
+def process_versions(versions):
+    versions.sort()
+    component = '-'.join(versions[0].split('-')[0:2])
+    commit_hashes = get_hashes(versions)
+    hash_1, hash_2 = [i[1] for i in commit_hashes]
+    return((hash_1, hash_2, component))
+
+
+def output_diff(hash_1, hash_2, component):
+    diff_json = get_diff(hash_1, hash_2)
+    for file in diff_json['files']:
+        if component in file['contents_url']:
+            print('=' * 90)
+            print("diff of '{}':".format(file['filename']))
+            print(file['patch'])
 
 
 def parse_commit(commit_hash):
@@ -87,15 +106,19 @@ def parse_commit(commit_hash):
 def iterate_hashes(hashes):
     """For a list of non-equal hashes, sort and group them and output metadata"""
     hashes = sorted(hashes, key=lambda x: x[1])
+    commit_dates = list()
     num = 1
     for commit_hash, grouped_hashes in itertools.groupby(hashes, key=lambda x: x[1]):
         commit_date, commit_message = parse_commit(commit_hash)
-        print('-' * 80)
+        if commit_date != 'Not Known':
+            commit_dates.append((commit_hash, commit_date))
+        print('-' * 90)
         print("\nGroup {}: commit-date: {}".format(num, commit_date))
         print("commit details: \n===\n{}\n===".format(commit_message))
         for line in grouped_hashes:
             print(line)
         num += 1
+    return(sorted(commit_dates, key=lambda x: x[1]))
 
 
 def compare_hashes(hashes):
@@ -109,10 +132,26 @@ def compare_hashes(hashes):
         print("commit details: \n===\n{}\n===".format(commit_message))
     else:
         print("\nWARNING: Not all hashes are equal\n")
-        iterate_hashes(hashes)
+        commit_dates = iterate_hashes(hashes)
+    return commit_dates
 
+
+def main():
+    args = cli_grab()
+    try:
+        diff = args.pop('diff')
+    except KeyError:
+        diff = False
+    charm_vers = args.values()
+    commit_hashes = get_hashes(charm_vers)
+    commit_dates = compare_hashes(commit_hashes)
+    component = ""
+    if diff:
+        print('#' * 90)
+        print("Outputing difference between earliest and latest commit:")
+        print("{}: {}\n".format(commit_dates[0][0], commit_dates[0][1]))
+        print("{}: {}\n".format(commit_dates[-1][0], commit_dates[-1][1]))
+        output_diff(commit_dates[0][0], commit_dates[-1][0], component)
 
 if __name__ == "__main__":
-    ARGS = cli_grab().values()
-    COMMIT_HASHES = get_hashes(ARGS)
-    compare_hashes(COMMIT_HASHES)
+    main()

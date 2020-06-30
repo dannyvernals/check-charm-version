@@ -14,8 +14,10 @@ import argparse
 import itertools
 import requests
 
+
 CHARMS_URL = "https://api.jujucharms.com/charmstore/v5/~juniper-os-software/{}/archive/repo-info"
-GITHUB_URL = "https://api.github.com/search/commits?q=repo:tungstenfabric/tf-charms+"
+GITHUB_SEARCH_URL = "https://api.github.com/search/commits?q=repo:tungstenfabric/tf-charms+"
+GITHUB_DIFF_URL = "https://api.github.com/repos/tungstenfabric/tf-charms/compare/{}...{}"
 
 # Example web commit search query:
 # https://github.com/tungstenfabric/tf-charms/search?q=hash%3Acc1474f70b5bbfb6abeab009b4acab704f525bf2&type=commits
@@ -40,26 +42,34 @@ def cli_grab():
 def get_hashes(args):
     """query the Canonical juju charms repo to find the github commit hashes of the passed charms"""
     charms = list()
-    for charm, version in args.items():
+    for version in args:
         page = requests.get(CHARMS_URL.format(version))
         sha_text = re.search(r"commit-sha-1[^\w]+(.+)\n", page.text)
         if sha_text:
             sha_text = sha_text.group(1)
         else:
             sha_text = "Not Found"
-        charms.append((charm, version, sha_text))
+        charms.append((version, sha_text))
     return charms
 
 
 def find_commit(commit_hash):
     """query github to search for metadata about the specified commit"""
     if commit_hash != "Not Found":
-        github_query_url = GITHUB_URL + commit_hash
+        github_query_url = GITHUB_SEARCH_URL + commit_hash
         commit_details = requests.get(github_query_url,
                                       headers={"Accept": "application/vnd.github.cloak-preview"})
         return commit_details.json()
     else:
         return {}
+
+
+def get_diff(com_hash_1, com_hash_2):
+    """query github to search for metadata about the specified commit"""
+    github_query_url = GITHUB_DIFF_URL.format(com_hash_1, com_hash_2)
+    diff_details = requests.get(github_query_url,
+                                      headers={"Accept": "application/vnd.github.cloak-preview"})
+    return diff_details.json()
 
 
 def parse_commit(commit_hash):
@@ -76,9 +86,9 @@ def parse_commit(commit_hash):
 
 def iterate_hashes(hashes):
     """For a list of non-equal hashes, sort and group them and output metadata"""
-    hashes = sorted(hashes, key=lambda x: x[2])
+    hashes = sorted(hashes, key=lambda x: x[1])
     num = 1
-    for commit_hash, grouped_hashes in itertools.groupby(hashes, key=lambda x: x[2]):
+    for commit_hash, grouped_hashes in itertools.groupby(hashes, key=lambda x: x[1]):
         commit_date, commit_message = parse_commit(commit_hash)
         print('-' * 80)
         print("\nGroup {}: commit-date: {}".format(num, commit_date))
@@ -90,7 +100,7 @@ def iterate_hashes(hashes):
 
 def compare_hashes(hashes):
     """Find if all commit hashes are equal"""
-    hash_set = set([line[2] for line in hashes])
+    hash_set = set([line[1] for line in hashes])
     if len(hash_set) == 1:
         print("\nHashes are equal, charms versions are from the same commit "
               "so we can assume compatibility.\n")
@@ -103,6 +113,6 @@ def compare_hashes(hashes):
 
 
 if __name__ == "__main__":
-    ARGS = cli_grab()
+    ARGS = cli_grab().values()
     COMMIT_HASHES = get_hashes(ARGS)
     compare_hashes(COMMIT_HASHES)

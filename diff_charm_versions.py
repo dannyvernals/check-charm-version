@@ -13,19 +13,24 @@ GITHUB_DIFF_URL = "https://api.github.com/repos/tungstenfabric/tf-charms/compare
 def cli_grab():
     """take stuff from cli, output it in a dict"""
     parser = argparse.ArgumentParser(description="diff charm commit hashes. ")
-    parser.add_argument("charm_1", help="charm version 1 e.g. contrail-agent-21")
-    parser.add_argument("charm_2", help="charm version 2 e.g. contrail-agent-22")
+    parser.add_argument("charm_1", help="Charm version 1 e.g. contrail-agent-21")
+    parser.add_argument("charm_2", help="Charm version 2 e.g. contrail-agent-22")
+    parser.add_argument("-t", "--terse", action="store_true", help="Show only differences in config.yaml."
+                                                                    " Good for checking if new configuration is needed"
+                                                                    " or new features are available between versions"
+                                                                    )
     args = vars(parser.parse_args())
     return args
 
 
 
 def main():
-    args = cli_grab().values()
+    args = list(cli_grab().values())
+    terse = args.pop()
     hash_1, hash_2, component = check_charm_versions.process_versions(args)
     print("\nOutputing difference between:\n{} & {}".format(hash_1, hash_2))
     print("Only showing diffs of files relating to the component: '{}'".format(component))
-    check_charm_versions.output_diff(hash_1, hash_2, component)
+    check_charm_versions.output_diff(hash_1, hash_2, component, terse)
 
 
 if __name__ == "__main__":

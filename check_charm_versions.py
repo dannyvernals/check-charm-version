@@ -82,13 +82,19 @@ def process_versions(versions):
     return((hash_1, hash_2, component))
 
 
-def output_diff(hash_1, hash_2, component):
+def output_diff(hash_1, hash_2, component, terse):
     diff_json = get_diff(hash_1, hash_2)
     for file in diff_json['files']:
-        if component in file['contents_url']:
-            print('=' * 90)
-            print("diff of '{}':".format(file['filename']))
-            print(file['patch'])
+        if terse:
+            if component + '/' in file['contents_url'] and 'config.yaml' in file['contents_url']:
+                print('=' * 90)
+                print("diff of '{}':".format(file['filename']))
+                print(file['patch'])
+        else:
+            if component + '/' in file['contents_url']:
+                print('=' * 90)
+                print("diff of '{}':".format(file['filename']))
+                print(file['patch'])
 
 
 def parse_commit(commit_hash):
@@ -151,7 +157,7 @@ def main():
         print("Outputing difference between earliest and latest commit:")
         print("{}: {}\n".format(commit_dates[0][0], commit_dates[0][1]))
         print("{}: {}\n".format(commit_dates[-1][0], commit_dates[-1][1]))
-        output_diff(commit_dates[0][0], commit_dates[-1][0], component)
+        output_diff(commit_dates[0][0], commit_dates[-1][0], component, False)
 
 if __name__ == "__main__":
     main()

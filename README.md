@@ -1,4 +1,4 @@
-# Tools to analyse juju charms
+# Tools to analyse contrail juju charms
 
 ## diff-charm-versions
 Find the github commit hashes of Contrail components in the juju charm store.
@@ -28,7 +28,7 @@ optional arguments:
 1. Using terse option.
 
 Contrail charms use a 'Documentation as Code' methodology.  Therefore features are often explained in the 
-code itself, rather than maintained in separate documents.  So it's useful to compare the code changes
+code itself, rather than in separate documents.  So it's useful to compare the code changes
 between charm versions for release management purposes.  Any external configuration for charms are
 exposed in the 'config.yaml' file within the charms so the terse option filters the diff to only that file.
 ```

@@ -1,6 +1,18 @@
 """
 Find the github commit hashes of Contrail components in the juju charms store.
 Diff these commits and output the code differences between them. 
+
+diff charm commit hashes.
+
+positional arguments:
+  charm_1      Charm version 1 e.g. contrail-agent-21
+  charm_2      Charm version 2 e.g. contrail-agent-22
+
+optional arguments:
+  -h, --help   show this help message and exit
+  -t, --terse  Show only differences in config.yaml. Good for checking if new
+               configuration is needed or new features are available between
+               versions
 """
 import argparse
 import check_charm_versions

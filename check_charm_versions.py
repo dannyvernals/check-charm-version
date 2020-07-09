@@ -9,6 +9,7 @@ Usage e.g. python check-charm-versions.py contrail-agent-18 contrail-analytics-1
 Or something like:
 check-charm-versions.py `juju export-bundle | grep juniper-os- |awk -F \/ '{print $2}' | xargs`
 """
+import sys
 import re
 import argparse
 import itertools
@@ -84,17 +85,21 @@ def process_versions(versions):
 
 def output_diff(hash_1, hash_2, component, terse):
     diff_json = get_diff(hash_1, hash_2)
-    for file in diff_json['files']:
-        if terse:
-            if component + '/' in file['contents_url'] and 'config.yaml' in file['contents_url']:
-                print('=' * 90)
-                print("diff of '{}':".format(file['filename']))
-                print(file['patch'])
-        else:
-            if component + '/' in file['contents_url']:
-                print('=' * 90)
-                print("diff of '{}':".format(file['filename']))
-                print(file['patch'])
+    try:
+        for file in diff_json['files']:
+            if terse:
+                if component + '/' in file['contents_url'] and 'config.yaml' in file['contents_url']:
+                    print('=' * 90)
+                    print("diff of '{}':".format(file['filename']))
+                    print(file['patch'])
+            else:
+                if component + '/' in file['contents_url']:
+                    print('=' * 90)
+                    print("diff of '{}':".format(file['filename']))
+                    print(file['patch'])
+    except KeyError:
+        print("\nEmpty diff contents.\nThis could be because one of the charms predates migration to Tungsten Fabric repo")
+        sys.exit()
 
 
 def parse_commit(commit_hash):

@@ -76,6 +76,8 @@ def get_diff(com_hash_1, com_hash_2):
 
 
 def process_versions(versions):
+    """post process the commit hashes from get_hashes().
+    extract the charm name i.e. 'component' to be used later for output filtering"""
     versions.sort()
     component = '-'.join(versions[0].split('-')[0:2])
     commit_hashes = get_hashes(versions)
@@ -84,6 +86,8 @@ def process_versions(versions):
 
 
 def output_diff(hash_1, hash_2, component, terse):
+    """parse the tf-charms diff to filter to desired charm i.e. 'component' 
+    optionally if using 'terse' filter down to only config.yaml file"""
     diff_json = get_diff(hash_1, hash_2)
     try:
         for file in diff_json['files']:

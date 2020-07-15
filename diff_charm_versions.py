@@ -37,9 +37,10 @@ def cli_grab():
 
 
 def main():
-    args = list(cli_grab().values())
-    terse = args.pop()
-    hash_1, hash_2, component = check_charm_versions.process_versions(args)
+    args = cli_grab()
+    terse = args['terse']
+    charms = [args['charm_1'], args['charm_2']]
+    hash_1, hash_2, component = check_charm_versions.process_versions(charms)
     print("\nOutputing difference between:\n{} & {}".format(hash_1, hash_2))
     print("Only showing diffs of files relating to the component: '{}'".format(component))
     check_charm_versions.output_diff(hash_1, hash_2, component, terse)

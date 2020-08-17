@@ -145,10 +145,11 @@ def compare_hashes(hashes):
         commit_date, commit_message = parse_commit(hash_set.pop())
         print("commit-date: {}".format(commit_date))
         print("commit details: \n===\n{}\n===".format(commit_message))
+        return ""
     else:
         print("\nWARNING: Not all hashes are equal\n")
         commit_dates = iterate_hashes(hashes)
-    return commit_dates
+        return commit_dates
 
 
 def main():

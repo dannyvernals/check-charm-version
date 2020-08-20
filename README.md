@@ -178,6 +178,30 @@ diff of 'contrail-agent/templates/vrouter.env':
  {%- else %}
 
 ```
+# find_common_charms
+Find the charm versions for Contrail Components that were commited at the same time.  
+From this we can infer compatibility.
+Usage:
+```
+python3 find_common_charms.py -h
+usage: find_common_charms.py [-h] charm_version
+
+Find Contrail charm versions that were commited at the same time
+
+positional arguments:
+  charm_version  Charm version e.g. contrail-agent-21
+
+optional arguments:
+  -h, --help     show this help message and exit
+```
+
+Example:
+```
+danny@ubuntu:~/git_clones/check-charm-version$ python3 find_common_charms.py contrail-openstack-18
+['contrail-openstack-18', 'contrail-agent-17', 'contrail-analytics-15', 'contrail-analyticsdb-15']
+
+```
+
 # check-charm-version
 Compare the commit hashes of Contrail charm versions to infer compatibility.  
 The script queries the juju charm store for Contrail component charms.  

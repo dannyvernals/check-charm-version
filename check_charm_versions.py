@@ -42,16 +42,21 @@ def cli_grab():
     return args
 
 
+def get_hash(version):
+    """query the Canonical juju charms repo to find the github commit hash of the passed charm"""
+    page = requests.get(CHARMS_URL.format(version))
+    sha_text = re.search(r"commit-sha-1[^\w]+(.+)\n", page.text)
+    if sha_text:
+        return sha_text.group(1)
+    else:
+        return "Not Found"
+
+
 def get_hashes(args):
-    """query the Canonical juju charms repo to find the github commit hashes of the passed charms"""
+    """Group 2 hashes and return for later comparison"""
     charms = list()
     for version in args:
-        page = requests.get(CHARMS_URL.format(version))
-        sha_text = re.search(r"commit-sha-1[^\w]+(.+)\n", page.text)
-        if sha_text:
-            sha_text = sha_text.group(1)
-        else:
-            sha_text = "Not Found"
+        sha_text = get_hash(version)
         charms.append((version, sha_text))
     return charms
 

@@ -179,8 +179,9 @@ diff of 'contrail-agent/templates/vrouter.env':
 
 ```
 # find_common_charms
-Find the charm versions for Contrail Components that were commited at the same time.  
-From this we can infer compatibility.
+Find the charm versions for Contrail components that were commited to 'tf-charms' github repo at the same time.  
+The script gets the commit hash to compare from 'repo-info' text file in each Contrail charm in the charm store.  
+From this we can infer compatibility.  
 Usage:
 ```
 python3 find_common_charms.py -h
@@ -204,9 +205,7 @@ danny@ubuntu:~/git_clones/check-charm-version$ python3 find_common_charms.py con
 
 # check-charm-version
 Compare the commit hashes of Contrail charm versions to infer compatibility.  
-The script queries the juju charm store for Contrail component charms.  
-It captures the referenced git commit hash for each component and compares them.  
-It then queries Github for metadata about the relevant commit.
+It also queries Github for metadata about the relevant commit.
 
 ```
 usage: check_charm_versions.py [-h]
